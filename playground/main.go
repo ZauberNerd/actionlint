@@ -1,61 +1,63 @@
 package main
 
 import (
+	"fmt"
 	"io/ioutil"
-	"syscall/js"
+	"reflect"
 
 	"github.com/rhysd/actionlint"
 )
 
-var (
-	window = js.Global().Get("window")
-)
+func toMap(input interface{}) map[string]interface{} {
+  out := make(map[string]interface{})
+  value := reflect.ValueOf(input)
+  if value.Kind() == reflect.Ptr {
+    value = value.Elem()
+  }
 
-func fail(err error, when string) {
-	window.Call("showError", err.Error()+" on "+when)
+  for i := 0; i < value.NumField(); i++ {
+    out[value.Type().Field(i).Name] = value.Field(i).Interface()
+  }
+
+  return out
 }
 
-func encodeErrorAsMap(err *actionlint.Error) map[string]interface{} {
-	obj := make(map[string]interface{}, 4)
-	obj["message"] = err.Message
-	obj["line"] = err.Line
-	obj["column"] = err.Column
-	obj["kind"] = err.Kind
-	return obj
+var input []byte
+//export prepareInput
+func prepareInput(len int) *byte {
+        fmt.Println("prepareInput", len)
+        input = make([]byte, len)
+        fmt.Println("return", &input[0])
+        return &input[0]
 }
 
-func lint(source string) interface{} {
-	opts := actionlint.LinterOptions{}
-	linter, err := actionlint.NewLinter(ioutil.Discard, &opts)
-	if err != nil {
-		fail(err, "creating linter instance")
-		return nil
-	}
+//export runActionlint
+func runActionlint() error {
+        opts := actionlint.LinterOptions{}
+        linter, err := actionlint.NewLinter(ioutil.Discard, &opts)
+        if err != nil {
+                return err
+        }
 
-	errs, err := linter.Lint("test.yaml", []byte(source), nil)
-	if err != nil {
-		fail(err, "applying lint rules")
-		return nil
-	}
+        errs, err := linter.Lint("test.yml", input, nil)
+        if err != nil {
+                return err
+        }
 
-	ret := make([]interface{}, 0, len(errs))
-	for _, err := range errs {
-		ret = append(ret, encodeErrorAsMap(err))
-	}
+        fmt.Println("errors:", len(errs))
+        for _, err := range errs {
+                fmt.Println(err)
+        }
 
-	window.Call("onCheckCompleted", js.ValueOf(ret))
+        return nil
+        // ret := make([]interface{}, 0, len(errs))
+        // for _, err := range errs {
+        //         ret = append(ret, toMap(*err))
+        // }
 
-	return nil
-}
-
-func runActionlint(_this js.Value, args []js.Value) interface{} {
-	source := args[0].String()
-	return lint(source)
+        // return ret, nil
 }
 
 func main() {
-	window.Set("runActionlint", js.FuncOf(runActionlint))
-	window.Call("dismissLoading")
-	lint(window.Call("getYamlSource").String()) // Show the first result
-	select {}
+        fmt.Println("Hello from wasm")
 }
