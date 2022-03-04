@@ -9,15 +9,7 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/fatih/color"
 	"github.com/mattn/go-runewidth"
-)
-
-var (
-	bold   = color.New(color.Bold)
-	green  = color.New(color.FgGreen)
-	yellow = color.New(color.FgYellow)
-	gray   = color.New(color.FgHiBlack)
 )
 
 // Error represents an error detected by actionlint rules
@@ -83,14 +75,14 @@ func (e *Error) GetTemplateFields(source []byte) *ErrorTemplateFields {
 // message with colorful output and source snippet with indicator. When nil is set to source, no
 // source snippet is not printed. To disable colorful output, set true to fatih/color.NoColor.
 func (e *Error) PrettyPrint(w io.Writer, source []byte) {
-	yellow.Fprint(w, e.Filepath)
-	gray.Fprint(w, ":")
+	fmt.Fprint(w, e.Filepath)
+	fmt.Fprint(w, ":")
 	fmt.Fprint(w, e.Line)
-	gray.Fprint(w, ":")
+	fmt.Fprint(w, ":")
 	fmt.Fprint(w, e.Column)
-	gray.Fprint(w, ": ")
-	bold.Fprint(w, e.Message)
-	gray.Fprintf(w, " [%s]\n", e.Kind)
+	fmt.Fprint(w, ": ")
+	fmt.Fprint(w, e.Message)
+	fmt.Fprintf(w, " [%s]\n", e.Kind)
 
 	if len(source) == 0 || e.Line <= 0 {
 		return
@@ -102,11 +94,11 @@ func (e *Error) PrettyPrint(w io.Writer, source []byte) {
 
 	lnum := fmt.Sprintf("%d | ", e.Line)
 	indent := strings.Repeat(" ", len(lnum)-2)
-	gray.Fprintf(w, "%s|\n", indent)
-	gray.Fprint(w, lnum)
+	fmt.Fprintf(w, "%s|\n", indent)
+	fmt.Fprint(w, lnum)
 	fmt.Fprintln(w, line)
-	gray.Fprintf(w, "%s| ", indent)
-	green.Fprintln(w, e.getIndicator(line))
+	fmt.Fprintf(w, "%s| ", indent)
+	fmt.Fprintln(w, e.getIndicator(line))
 }
 
 func (e *Error) getLine(source []byte) (string, bool) {

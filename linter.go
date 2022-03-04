@@ -14,8 +14,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/fatih/color"
-	"github.com/mattn/go-colorable"
 	"golang.org/x/sync/errgroup"
 	"golang.org/x/sync/semaphore"
 )
@@ -108,17 +106,17 @@ func NewLinter(out io.Writer, opts *LinterOptions) (*Linter, error) {
 		level = LogLevelDebug
 	}
 
-	if opts.Color == ColorOptionKindNever {
-		color.NoColor = true
-	} else {
-		if opts.Color == ColorOptionKindAlways {
-			color.NoColor = false
-		}
-		// Allow colorful output on Windows
-		if f, ok := out.(*os.File); ok {
-			out = colorable.NewColorable(f)
-		}
-	}
+	// if opts.Color == ColorOptionKindNever {
+	// 	color.NoColor = true
+	// } else {
+	// 	if opts.Color == ColorOptionKindAlways {
+	// 		color.NoColor = false
+	// 	}
+	// 	// Allow colorful output on Windows
+	// 	// if f, ok := out.(*os.File); ok {
+	// 	// 	out = colorable.NewColorable(f)
+	// 	// }
+	// }
 
 	var lout io.Writer = ioutil.Discard
 	if opts.LogWriter != nil {
