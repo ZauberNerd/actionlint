@@ -466,26 +466,6 @@ func (l *Linter) check(path string, content []byte, project *Project, proc *conc
 			NewRuleWorkflowCall(),
 			NewRuleExpression(localActions),
 		}
-		if l.shellcheck != "" {
-			r, err := NewRuleShellcheck(l.shellcheck, proc)
-			if err == nil {
-				rules = append(rules, r)
-			} else {
-				l.log("Rule \"shellcheck\" was disabled:", err)
-			}
-		} else {
-			l.log("Rule \"shellcheck\" was disabled since shellcheck command name was empty")
-		}
-		if l.pyflakes != "" {
-			r, err := NewRulePyflakes(l.pyflakes, proc)
-			if err == nil {
-				rules = append(rules, r)
-			} else {
-				l.log("Rule \"pyflakes\" was disabled:", err)
-			}
-		} else {
-			l.log("Rule \"pyflakes\" was disabled since pyflakes command name was empty")
-		}
 
 		v := NewVisitor()
 		for _, rule := range rules {
