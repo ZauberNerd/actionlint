@@ -327,7 +327,7 @@ var (
 	durationType   = reflect.TypeOf(time.Duration(0))
 	stringMapType  = reflect.TypeOf(map[string]interface{}{})
 	generalMapType = reflect.TypeOf(map[interface{}]interface{}{})
-	ifaceType      = generalMapType.Elem()
+	// ifaceType      = generalMapType.Elem()
 	timeType       = reflect.TypeOf(time.Time{})
 	ptrTimeType    = reflect.TypeOf(&time.Time{})
 )
@@ -760,6 +760,7 @@ func (d *decoder) sequence(n *Node, out reflect.Value) (good bool) {
 }
 
 func (d *decoder) mapping(n *Node, out reflect.Value) (good bool) {
+	ifaceType := generalMapType.Elem()
 	l := len(n.Content)
 	if d.uniqueKeys {
 		nerrs := len(d.terrors)
