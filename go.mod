@@ -21,3 +21,5 @@ require (
 	github.com/rivo/uniseg v0.2.0 // indirect
 	golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543 // indirect
 )
+
+replace gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b => ./vendor_yaml
