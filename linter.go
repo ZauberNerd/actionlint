@@ -9,7 +9,6 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
-	"runtime"
 	"sort"
 	"strings"
 	"time"
@@ -270,9 +269,9 @@ func (l *Linter) LintFiles(filepaths []string, project *Project) ([]*Error, erro
 		cwd = wd
 	}
 
-	proc := newConcurrentProcess(runtime.NumCPU())
+	proc := newConcurrentProcess(1)
 	localActions := NewLocalActionsCache(project, l.debugWriter())
-	sema := semaphore.NewWeighted(int64(runtime.NumCPU()))
+	sema := semaphore.NewWeighted(int64(1))
 	ctx := context.Background()
 
 	type workspace struct {
@@ -377,7 +376,7 @@ func (l *Linter) LintFile(path string, project *Project) ([]*Error, error) {
 		}
 	}
 
-	proc := newConcurrentProcess(runtime.NumCPU())
+	proc := newConcurrentProcess(1)
 	localActions := NewLocalActionsCache(project, l.debugWriter())
 	errs, err := l.check(path, src, project, proc, localActions)
 	proc.wait()
@@ -399,7 +398,7 @@ func (l *Linter) LintFile(path string, project *Project) ([]*Error, error) {
 // Note that only given Project instance is used for configuration. No config is automatically loaded
 // based on path parameter.
 func (l *Linter) Lint(path string, content []byte, project *Project) ([]*Error, error) {
-	proc := newConcurrentProcess(runtime.NumCPU())
+	proc := newConcurrentProcess(1)
 	localActions := NewLocalActionsCache(project, l.debugWriter())
 	errs, err := l.check(path, content, project, proc, localActions)
 	proc.wait()
