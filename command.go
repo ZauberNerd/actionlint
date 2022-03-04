@@ -6,7 +6,6 @@ import (
 	"io"
 	"io/ioutil"
 	"runtime"
-	"runtime/debug"
 )
 
 // These variables might be modified by ldflags on building release binaries by GoReleaser. Do not modify manually
@@ -60,12 +59,12 @@ func getCommandVersion() string {
 		return version
 	}
 
-	info, ok := debug.ReadBuildInfo()
-	if !ok {
-		return "unknown" // Reaches only when actionlint package is built outside module
-	}
+	// info, ok := debug.ReadBuildInfo()
+	// if !ok {
+	// 	return "unknown" // Reaches only when actionlint package is built outside module
+	// }
 
-	return info.Main.Version
+	return "1.0.0"
 }
 
 // Command represents entire actionlint command. Given stdin/stdout/stderr are used for input/output.
@@ -156,7 +155,7 @@ func (cmd *Command) Main(args []string) int {
 			"%s\n%s\nbuilt with %s compiler for %s/%s\n",
 			getCommandVersion(),
 			installedFrom,
-			runtime.Version(),
+			"tinygo1",
 			runtime.GOOS,
 			runtime.GOARCH,
 		)
