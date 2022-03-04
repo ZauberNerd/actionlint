@@ -45,20 +45,20 @@ func runProcessWithStdin(exe string, args []string, stdin string) ([]byte, error
 	p.Close()
 
 	stdout, err := cmd.Output()
-	if err != nil {
-		if exitErr, ok := err.(*exec.ExitError); ok {
-			code := exitErr.ExitCode()
-			if code < 0 {
-				return nil, fmt.Errorf("%s was terminated. stderr: %q", exe, exitErr.Stderr)
-			}
-			if len(stdout) == 0 {
-				return nil, fmt.Errorf("%s exited with status %d but stdout was empty. stderr: %q", exe, code, exitErr.Stderr)
-			}
-			// Reaches here when exit status is non-zero and stdout is not empty, shellcheck successfully found some errors
-		} else {
-			return nil, err
-		}
-	}
+	// if err != nil {
+	// 	if exitErr, ok := err.(*exec.ExitError); ok {
+	// 		code := exitErr.ExitCode()
+	// 		if code < 0 {
+	// 			return nil, fmt.Errorf("%s was terminated. stderr: %q", exe, exitErr.Stderr)
+	// 		}
+	// 		if len(stdout) == 0 {
+	// 			return nil, fmt.Errorf("%s exited with status %d but stdout was empty. stderr: %q", exe, code, exitErr.Stderr)
+	// 		}
+	// 		// Reaches here when exit status is non-zero and stdout is not empty, shellcheck successfully found some errors
+	// 	} else {
+	// 		return nil, err
+	// 	}
+	// }
 
 	return stdout, nil
 }
