@@ -141,13 +141,6 @@ func NewLinter(out io.Writer, opts *LinterOptions) (*Linter, error) {
 	}
 
 	var formatter *ErrorFormatter
-	if opts.Format != "" {
-		f, err := NewErrorFormatter(opts.Format)
-		if err != nil {
-			return nil, err
-		}
-		formatter = f
-	}
 
 	return &Linter{
 		NewProjects(),
@@ -332,17 +325,17 @@ func (l *Linter) LintFiles(filepaths []string, project *Project) ([]*Error, erro
 
 	all := make([]*Error, 0, total)
 	if l.errFmt != nil {
-		temp := make([]*ErrorTemplateFields, 0, total)
-		for i := range ws {
-			w := &ws[i]
-			for _, err := range w.errs {
-				temp = append(temp, err.GetTemplateFields(w.src))
-			}
-			all = append(all, w.errs...)
-		}
-		if err := l.errFmt.Print(l.out, temp); err != nil {
-			return nil, err
-		}
+		// temp := make([]*ErrorTemplateFields, 0, total)
+		// for i := range ws {
+		// 	w := &ws[i]
+		// 	for _, err := range w.errs {
+		// 		temp = append(temp, err.GetTemplateFields(w.src))
+		// 	}
+		// 	all = append(all, w.errs...)
+		// }
+		// if err := l.errFmt.Print(l.out, temp); err != nil {
+		// 	return nil, err
+		// }
 	} else {
 		for i := range ws {
 			w := &ws[i]
@@ -385,7 +378,7 @@ func (l *Linter) LintFile(path string, project *Project) ([]*Error, error) {
 	}
 
 	if l.errFmt != nil {
-		l.errFmt.PrintErrors(l.out, errs, src)
+		// l.errFmt.PrintErrors(l.out, errs, src)
 	} else {
 		l.printErrors(errs, src)
 	}
@@ -406,7 +399,7 @@ func (l *Linter) Lint(path string, content []byte, project *Project) ([]*Error, 
 		return nil, err
 	}
 	if l.errFmt != nil {
-		l.errFmt.PrintErrors(l.out, errs, content)
+		// l.errFmt.PrintErrors(l.out, errs, content)
 	} else {
 		l.printErrors(errs, content)
 	}

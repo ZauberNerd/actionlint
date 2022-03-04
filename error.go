@@ -3,11 +3,9 @@ package actionlint
 import (
 	"bufio"
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"io"
 	"strings"
-	"text/template"
 
 	"github.com/mattn/go-runewidth"
 )
@@ -175,66 +173,8 @@ type ErrorTemplateFields struct {
 	Snippet string `json:"snippet,omitempty"`
 }
 
-func unescapeBackslash(s string) string {
-	// https://golang.org/ref/spec#Rune_literals
-	r := strings.NewReplacer(
-		`\a`, "\a",
-		`\b`, "\b",
-		`\f`, "\f",
-		`\n`, "\n",
-		`\r`, "\r",
-		`\t`, "\t",
-		`\v`, "\v",
-		`\\`, "\\",
-	)
-	return r.Replace(s)
-}
-
 // ErrorFormatter is a formatter to format a slice of ErrorTemplateFields. It is used for
 // formatting error messages with -format option.
 type ErrorFormatter struct {
-	temp *template.Template
-}
 
-// NewErrorFormatter creates new ErrorFormatter instance. Given format must contain at least one
-// {{ }} placeholder. Escaped characters like \n in the format string are unescaped.
-func NewErrorFormatter(format string) (*ErrorFormatter, error) {
-	if !strings.Contains(format, "{{") {
-		return nil, fmt.Errorf("template to format error messages must contain at least one {{ }} placeholder: %s", format)
-	}
-	funcs := map[string]interface{}{
-		"json": func(data interface{}) (string, error) {
-			var b strings.Builder
-			enc := json.NewEncoder(&b)
-			if err := enc.Encode(data); err != nil {
-				return "", fmt.Errorf("could not encode template value into JSON: %w", err)
-			}
-			return b.String(), nil
-		},
-		"replace": func(s string, oldnew ...string) string {
-			return strings.NewReplacer(oldnew...).Replace(s)
-		},
-	}
-	t, err := template.New("error formatter").Funcs(funcs).Parse(unescapeBackslash(format))
-	if err != nil {
-		return nil, fmt.Errorf("template %q to format error messages could not be parsed: %w", format, err)
-	}
-	return &ErrorFormatter{t}, nil
-}
-
-// Print formats the slice of template fields and prints it with given writer.
-func (f *ErrorFormatter) Print(out io.Writer, t []*ErrorTemplateFields) error {
-	if err := f.temp.Execute(out, t); err != nil {
-		return fmt.Errorf("could not format error messages: %w", err)
-	}
-	return nil
-}
-
-// PrintErrors prints the errors after formatting them with template.
-func (f *ErrorFormatter) PrintErrors(out io.Writer, errs []*Error, src []byte) error {
-	t := make([]*ErrorTemplateFields, 0, len(errs))
-	for _, err := range errs {
-		t = append(t, err.GetTemplateFields(src))
-	}
-	return f.Print(out, t)
 }
